@@ -1,4 +1,4 @@
-from referral_system.referral import Referral
+from referral_system.referral import Referral, ReferralStatus
 from referral_system.referral_repository import ReferralRepository
 from referral_system.user_repository import UserRepository
 
@@ -33,3 +33,19 @@ class ReferralService:
 
     def get_referral(self, referral_id: int) -> Referral | None:
         return self.referral_repository.get_by_id(referral_id)
+
+    
+    def complete_referral(self, referral_id: int) -> Referral:
+        referral = self.referral_repository.get_by_id(referral_id)
+        
+        if referral is None:
+            raise ValueError("Referral does not exist")
+        
+        if referral.status != ReferralStatus.PENDING:
+            raise ValueError("Only pending referrals can be completed")
+        
+        referral.status = ReferralStatus.COMPLETED
+        self.referral_repository.save(referral)
+
+
+        return referral
